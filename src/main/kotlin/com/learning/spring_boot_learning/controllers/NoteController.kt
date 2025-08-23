@@ -1,11 +1,14 @@
 package com.learning.spring_boot_learning.controllers
 
+import com.learning.spring_boot_learning.controllers.NoteController.NoteResponse
 import com.learning.spring_boot_learning.database.model.Note
 import com.learning.spring_boot_learning.database.repository.NoteRepository
 import io.jsonwebtoken.lang.Objects
 import org.bson.types.ObjectId
+import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestMapping
+import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
 import java.time.Instant
 
@@ -44,15 +47,25 @@ class NoteController(
                 )
             )
 
-        return NoteResponse(
-            id = note.id.toHexString(),
-            title = note.title,
-            content = note.content,
-            color = note.color,
-            createdAt = note.createdAt,
-        )
+        return note.toResponse()
     }
 
 
+    @GetMapping
+    fun findByOwnerId(
+        @RequestParam(required = true) ownerId: String): List<NoteResponse>{
+        return repository.findByOwnerId(ObjectId(ownerId)).map {
+            it.toResponse()
+        }
+    }
+}
 
+private fun Note.toResponse(): NoteController.NoteResponse{
+    return NoteResponse(
+        id = id.toHexString(),
+        title = title,
+        content = content,
+        color = color,
+        createdAt = createdAt,
+    )
 }
