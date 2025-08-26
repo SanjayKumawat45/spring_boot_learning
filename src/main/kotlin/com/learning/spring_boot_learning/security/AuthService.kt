@@ -6,6 +6,7 @@ import com.learning.spring_boot_learning.database.repository.RefreshTokenReposit
 import com.learning.spring_boot_learning.database.repository.UserRepository
 import org.bson.types.ObjectId
 import org.springframework.security.authentication.BadCredentialsException
+import org.springframework.transaction.annotation.Transactional
 import java.security.MessageDigest
 import java.time.Instant
 import java.time.temporal.ChronoUnit
@@ -49,6 +50,7 @@ class AuthService(
         )
     }
 
+    @Transactional
     fun refresh(refreshToken: String): TokenPair {
         if (!jwtService.validateAccessToken(refreshToken)){
             throw IllegalArgumentException("Invalid refresh token.")
