@@ -6,13 +6,13 @@ import com.learning.spring_boot_learning.database.repository.RefreshTokenReposit
 import com.learning.spring_boot_learning.database.repository.UserRepository
 import org.bson.types.ObjectId
 import org.springframework.security.authentication.BadCredentialsException
+import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.security.MessageDigest
 import java.time.Instant
-import java.time.temporal.ChronoUnit
 import java.util.Base64
 
-
+@Service
 class AuthService(
     private val jwtService: JwtService,
     private val userRepository: UserRepository,
@@ -23,10 +23,11 @@ class AuthService(
         val accessToken: String,
         val refreshToken: String
     )
+
     fun register(email: String, password: String): User {
         return userRepository.save(
             User(
-                email= email,
+                email = email,
                 hashedPassword = hashEncoder.encode(password)
             )
         )
@@ -36,7 +37,7 @@ class AuthService(
         val user = userRepository.findByEmail(email)
             ?: throw BadCredentialsException("Invalid credentials.")
 
-        if (!hashEncoder.matches(password, user.hashedPassword)){
+        if (!hashEncoder.matches(password, user.hashedPassword)) {
             throw BadCredentialsException("Invalid credentials.")
         }
         val newAccessToken = jwtService.generateAccessToken(user.id.toHexString())
@@ -52,7 +53,7 @@ class AuthService(
 
     @Transactional
     fun refresh(refreshToken: String): TokenPair {
-        if (!jwtService.validateAccessToken(refreshToken)){
+        if (!jwtService.validateRefreshToken(refreshToken)) {
             throw IllegalArgumentException("Invalid refresh token.")
         }
 
@@ -62,7 +63,7 @@ class AuthService(
         }
         val hashed = hashToken(refreshToken)
         refreshTokenRepository.findByUserIdAndHashedToken(user.id, hashed)
-            ?:throw IllegalArgumentException("Refresh token is not recognized (maybe used or expired).")
+            ?: throw IllegalArgumentException("Refresh token is not recognized (maybe used or expired).")
 
         refreshTokenRepository.deleteByUserIdAndHashedToken(user.id, hashed)
 
@@ -77,8 +78,8 @@ class AuthService(
         )
     }
 
-    private fun storeRefreshToken(userId: ObjectId, rawRefreshToken: String){
-     val hashed = hashToken(rawRefreshToken)
+    private fun storeRefreshToken(userId: ObjectId, rawRefreshToken: String) {
+        val hashed = hashToken(rawRefreshToken)
         val expiryMs = jwtService.refreshTokenValidityMs
         val expiresAt = Instant.now().plusMillis(expiryMs)
 
@@ -91,9 +92,9 @@ class AuthService(
         )
     }
 
-    private fun hashToken(token: String): String{
+    private fun hashToken(token: String): String {
         val digest = MessageDigest.getInstance("SHA-256")
-        val hashBytes =  digest.digest(token.encodeToByteArray())
+        val hashBytes = digest.digest(token.encodeToByteArray())
         return Base64.getEncoder().encodeToString(hashBytes)
     }
 }

@@ -21,7 +21,7 @@ class AuthController(
         val refreshToken: String
     )
 
-    @PostMapping("/refresh")
+    @PostMapping("/register")
     fun register(
         @RequestBody body: AuthRequest
     ){
