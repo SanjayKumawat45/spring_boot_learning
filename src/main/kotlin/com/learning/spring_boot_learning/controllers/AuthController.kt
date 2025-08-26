@@ -1,6 +1,8 @@
 package com.learning.spring_boot_learning.controllers
 
 import com.learning.spring_boot_learning.security.AuthService
+import jakarta.validation.constraints.Email
+import jakarta.validation.constraints.Pattern
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
@@ -13,7 +15,12 @@ class AuthController(
     private val authService: AuthService
 ) {
     data class AuthRequest(
+        @Email(message = "Please enter a valid email address")
         val email: String,
+        @field:Pattern(
+            regexp = "^(?=.*[A-Z])(?=.*[a-z])(?=.*\\d).{9,}\$",
+            message = "Password must be at least 9 characters long and contain at least one digit, uppercase and lowercase character."
+        )
         val password: String
     )
 

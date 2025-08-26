@@ -4,6 +4,7 @@ import com.learning.spring_boot_learning.controllers.NoteController.NoteResponse
 import com.learning.spring_boot_learning.database.model.Note
 import com.learning.spring_boot_learning.database.repository.NoteRepository
 import io.jsonwebtoken.lang.Objects
+import jakarta.validation.constraints.NotBlank
 import org.bson.types.ObjectId
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.web.bind.annotation.DeleteMapping
@@ -25,6 +26,7 @@ class NoteController(
 
     data class NoteRequest(
         val id: String?,
+        @NotBlank(message = "Title can't be blank.")
         val title: String,
         val content: String,
         val color: Long,
